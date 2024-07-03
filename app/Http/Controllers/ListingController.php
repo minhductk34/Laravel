@@ -4,20 +4,59 @@ namespace App\Http\Controllers;
 
 use App\Models\Listing;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
 
-class ListingController extends Controller
+class ListingController extends Controller implements HasMiddleware
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): \Inertia\Response|\Inertia\ResponseFactory
+    public static function middleware(): array
     {
-        return inertia(
-            'Listing/Index',
-            [
-                "listings" => Listing::all(),
-            ]
-        );
+        return [
+            new Middleware(middleware: 'auth', except: ['index', 'show']),
+        ];
+    }
+
+    public function index(Request $request): \Inertia\Response|\Inertia\ResponseFactory
+    {
+        $query = DB::table('listings');
+
+        if ($request->filled('priceFrom')) {
+            $query->where('price', '>=', $request->input('priceFrom'));
+        }
+
+        if ($request->filled('priceTo')) {
+            $query->where('price', '<=', $request->input('priceTo'));
+        }
+
+        if ($request->filled('beds')) {
+            $query->where('beds', '=', $request->input('beds'));
+        }
+
+        if ($request->filled('baths')) {
+            $query->where('baths', '=', $request->input('baths'));
+        }
+
+        if ($request->filled('areaFrom')) {
+            $query->where('area', '>=', $request->input('areaFrom'));
+        }
+
+        if ($request->filled('areaTo')) {
+            $query->where('area', '<=', $request->input('areaTo'));
+        }
+
+        $listings = $query->paginate(10);
+
+        return Inertia::render('Listing/Index', [
+            'listings' => $listings,
+            'filters' => $request->all(),
+        ]);
     }
 
     /**
@@ -25,6 +64,7 @@ class ListingController extends Controller
      */
     public function create(): \Inertia\Response|\Inertia\ResponseFactory
     {
+
         return inertia(
             "Listing/Create"
         );
@@ -48,7 +88,7 @@ class ListingController extends Controller
         ]);
 
         // Create the listing
-        Listing::create($validated);
+        $request->user()->listings()->create($validated);
 
         // Redirect to the listing index page
         return redirect()->route('listing.index')
@@ -60,6 +100,12 @@ class ListingController extends Controller
      */
     public function show(Listing $listing): \Inertia\Response|\Inertia\ResponseFactory
     {
+        //Use Policies
+//        if (!Gate::allows('view', $listing)) {
+//            abort(403);
+//        }
+
+        //Use inertia
         return inertia(
             'Listing/Show',
             [
