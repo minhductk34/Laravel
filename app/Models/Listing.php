@@ -9,4 +9,21 @@ class Listing extends Model
 {
 
     use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'beds',
+        'baths',
+        'area',
+        'city',
+        'street',
+        'code',
+        'street_nr',
+        'price',
+        // Các thuộc tính khác nếu có
+    ];
 }

@@ -13,6 +13,8 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "@inertiajs/vue3": "^1.2.0"
+        "@inertiajs/vue3": "^1.2.0",
+        "path": "^0.12.7",
+        "ziggy": "^2.4.0"
     }
 }

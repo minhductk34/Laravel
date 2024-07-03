@@ -1,8 +1,22 @@
 <template>
-    <Link href="/">MainPage</Link>&nbsp;
-    <Link href="/show">ShowPage</Link>
+    <Link href="/listing">Listings</Link>&nbsp;
+    <Link href="/listing/create">New Listing</Link>
+    <div v-if="flashSuccess" class="success">
+        {{ flashSuccess }}
+    </div>
     <slot></slot>
 </template>
 <script setup>
-import {Link} from "@inertiajs/vue3";
+import {computed} from "vue"
+import {Link, usePage} from "@inertiajs/vue3";
+
+const flashSuccess = computed(() => page.props.flash.success)
+const page = usePage()
 </script>
+<style scoped>
+.success {
+    background: green;
+    color: white;
+}
+</style>
+
